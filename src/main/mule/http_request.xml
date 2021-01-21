@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1a1fd022-bc1a-4019-8d1d-0793e69c3059" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="a95df0d5-b077-4e12-9a79-25e28ef4c442" responseTimeout="40000">
+		<http:request-connection host="dummy.restapiexample.com" />
+	</http:request-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="984850c1-8a8e-4001-a8bd-3fec768a0957" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<flow name="http_requestFlow" doc:id="35b82833-3b68-4444-83da-e4e8931ab559" >
+		<http:listener doc:name="Listener" doc:id="71a59292-5265-4e38-b6af-87c739b64f47" config-ref="HTTP_Listener_config" path="/request"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c48bb773-e742-4830-a355-7cc6fbd3f910" message="flow started"/>
+		<set-variable value="#[attributes.queryParams.valu]" doc:name="Set Variable" doc:id="60951703-398f-4db1-8108-7f1bf1e8af3a" variableName="value"/>
+		<logger level="INFO" doc:name="Logger" doc:id="484d81c0-fadf-495d-b4fb-f1afddfa5199" message="after variable"/>
+		<logger level="INFO" doc:name="Logger" doc:id="a4726f89-cb7e-4fbe-8af4-57e83ffd5d72" message="#[vars.value]"/>
+		<http:request method="GET" doc:name="Request" doc:id="248bc471-7132-4cb9-b420-e7315c2e059a" config-ref="HTTP_Request_configuration" path="/api/v1/employee/1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b5de6f9a-913c-4634-89db-2b9e63c4bcf2" message="after requester"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8cc1a4a3-9074-4959-8329-6e328f17f6bd" message="#[vars.value]"/>
+	</flow>
+	<flow name="http_requestFlow1" doc:id="6146e1b2-0a14-4236-91b5-1d1ac29dfebf" >
+		<http:listener doc:name="Listener" doc:id="bd6cf74b-4d8f-4f09-9799-e1e491b53607" config-ref="HTTP_Listener_config1" path="/dw"/>
+		<ee:transform doc:name="Transform Message" doc:id="9b6ebd65-6c77-4e45-972f-32c8b9ce8848" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="52f4b453-9c1b-4ce8-9165-119135455b28" message="#[payload]"/>
+	</flow>
+</mule>
